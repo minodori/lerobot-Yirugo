@@ -1,3 +1,30 @@
+> **This is a personal fork of [huggingface/lerobot](https://github.com/huggingface/lerobot).**
+> For the original documentation, see the [original README](https://github.com/huggingface/lerobot/blob/main/README.md).
+
+## Changes from upstream
+
+### `examples/calibrate_single_motor.py` (added)
+
+Single-motor calibration script — calibrates one motor without resetting others.
+
+```bash
+# Basic (homing only, full range)
+python examples/calibrate_single_motor.py --port COM4 --id leader --motor wrist_roll
+
+# Interactive range recording (non-full-turn motors)
+python examples/calibrate_single_motor.py --port COM4 --id leader --motor shoulder_pan --record-range
+
+# Direct range specification (Present_Position values)
+python examples/calibrate_single_motor.py --port COM4 --id leader --motor shoulder_pan --range-min 500 --range-max 3500
+```
+
+Key behaviors:
+- `wrist_roll` is a full-turn motor: hardware `Min/Max_Position_Limit` is always set to `[0, 4095]` to avoid wrap-around issues. Use `max_relative_target` in the follower config for speed-based safety limiting instead.
+- For other motors, recorded `Present_Position` values are converted to `Actual_Position` (`= Present + homing_offset`) before writing to the motor EEPROM, so hardware limits are applied in the correct coordinate space.
+- The JSON calibration file stores `Present_Position`-based range (used by lerobot normalization), while the motor EEPROM stores `Actual_Position`-based limits (enforced by firmware).
+
+---
+
 <p align="center">
   <img alt="LeRobot, Hugging Face Robotics Library" src="./media/readme/lerobot-logo-thumbnail.png" width="100%">
 </p>
